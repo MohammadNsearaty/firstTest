@@ -42,9 +42,6 @@ public class main extends Application implements EventHandler {
         }
     }
 
-    ObservableList<String> messageList = FXCollections.<String>observableArrayList(server.getList());
-   ListView<String> listView = new ListView<>(messageList);
-
     public static void main(String[] args) throws IOException {
 
 
@@ -65,11 +62,9 @@ public class main extends Application implements EventHandler {
     @Override
     public void start(Stage primaryStage) throws Exception {
 
-        FileInputStream fis = new FileInputStream("C:\\Users\\Mohamad Nsearaty\\Desktop\\One Piece wallpapers\\[Al3asq] One Piece - 876 [h264 1080p 10bit].mkv_snapshot_21.31_[2019.03.23_16.05.42].jpg");
-        byte[] buffer = new byte[fis.available()];
+      /*  FileInputStream fis = new FileInputStream("C:\\Users\\Mohamad Nsearaty\\Desktop\\One Piece wallpapers\\[Al3asq] One Piece - 876 [h264 1080p 10bit].mkv_snapshot_21.31_[2019.03.23_16.05.42].jpg");
+        biyte[] buffer = new byte[fis.available()];
         fis.read(buffer);
-
-
         ByteArrayInputStream bis = new ByteArrayInputStream(buffer);
         BufferedImage bufferedImage = ImageIO.read(bis);
         WritableImage writableImage = null;
@@ -91,23 +86,21 @@ public class main extends Application implements EventHandler {
         imageView.setFitHeight(450);
         imageView.setFitWidth(500);
         imageView.setPreserveRatio(true);
-
+*/
         primaryStage.setTitle("Server");
 
         button.setText("Send");
-
-
         button.setOnAction(this::handle);
         HBox layout = new HBox();
 
         VBox vBox = new VBox();
-        vBox.getChildren().add(imageView);
+       // vBox.getChildren().add(imageView);
        // listView.getItems().addAll(server.getList());
 
 
 
         layout.getChildren().addAll(textField,button);
-        Scene scene = new Scene(vBox,500,500);
+        Scene scene = new Scene(layout,300,50);
         layout.setAlignment(Pos.BOTTOM_CENTER);
 
         primaryStage.setScene(scene);
@@ -120,7 +113,6 @@ public class main extends Application implements EventHandler {
 
 
         String message = textField.getText();
-
         server.SendMessage(message);
     }
 }
