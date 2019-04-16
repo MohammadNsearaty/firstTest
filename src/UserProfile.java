@@ -11,14 +11,62 @@ public class UserProfile {
     private Date joinDate;
     private ArrayList<Message> currMessages;
 
+    UserProfile()
+    {
+        userName ="";
+        password ="";
+        email = "";
+        birthDate = new Date();
+        userFriends = new ArrayList<>();
+        blockList = new ArrayList<>();
+        joinDate = new Date();
+        currMessages = new ArrayList<>();
+    }
 
 
-    public boolean addFriend(UserProfile friend){return true;};
-    public void deleteFriend(String friendName){}
-    public boolean blockUser(String name){return true;}
-    public boolean unblockUser(String name){return true;}
-    public boolean searchInFriendList(String name){return true;}
-    public boolean searchInBlockList(String name){return true;}
+    public boolean addFriend(UserProfile friend){
+        boolean searchInFriendList = searchInFriendList(friend.getUserName());
+        if(!searchInFriendList)
+            return false;
+        userFriends.add(friend.getUserName());
+        return true;
+    }
+    public boolean deleteFriend(String friendName){
+        boolean searchInFriendList = searchInFriendList(friendName);
+        if(!searchInFriendList)
+            return false;
+        userFriends.remove(friendName);
+        return true;
+    }
+    public boolean blockUser(String name){
+        boolean searchInBlockList = searchInBlockList(name);
+        if(!searchInBlockList)
+            return false;
+        blockList.add(name);
+        return true;}
+    public boolean unblockUser(String name){
+        boolean searchInBlockList = searchInBlockList(name);
+        if(!searchInBlockList)
+            return false;
+        blockList.remove(name);
+        return true;
+    }
+    public boolean searchInFriendList(String name){
+        for(String str:userFriends)
+        {
+            if(str.equals(name))
+                return true;
+        }
+        return false;
+    }
+    public boolean searchInBlockList(String name){
+        for(String str:blockList)
+        {
+            if(str.equals(name))
+                return true;
+        }
+        return false;
+    }
     public void handleCurrMessages(){}
     public ArrayList<Message> checkTheServer(){return null;}
     public String getUserName() {
