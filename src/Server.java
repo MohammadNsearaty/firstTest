@@ -11,6 +11,7 @@ public class Server {
 
     private ArrayList<UserProfile> list;
     private ArrayList<Message> messagelist;
+    private ArrayList<Group> groupsList;
 
     private Socket connection;
     private String emailsFileLocation;
@@ -24,12 +25,39 @@ public class Server {
     public boolean deleteUser(UserProfile user){return true;}
     public boolean updateUser(UserProfile user){return true;}
     public void rejectRequest(request request){}
-    public boolean creatGroup(ArrayList<UserProfile> list){return true;}
-    public boolean deleteGroup(String groupName){return true;}
-    public boolean updateGroup(String groupName){
+    public boolean creatGroup(Group group){
+        if(!checkIfGroupNameAvaillabe(group.getName()))
+            return false;
+        groupsList.add(group);
+        return true;
+    }
+    public boolean deleteGroup(Group group){
+        if(checkIfGroupNameAvaillabe(group.getName()))
+           return false;
+        groupsList.remove(group);
+        return true;
+    }
+    public boolean updateGroup(Group group){
+        if(checkIfGroupNameAvaillabe(group.getName()))
+            return false;
+        for(Group gr:groupsList)
+        {
+            if(gr.getId() == group.getId())
+            {
+                groupsList.remove(gr);
+                groupsList.add(group);
+            }
+        }
         return false;
     }
-    public boolean checkIfGroupNameAvailabe(String groupName){return true;}
+    public boolean checkIfGroupNameAvaillabe(String groupName){
+        for(Group gr:groupsList)
+        {
+           if(groupName ==gr.getName())
+               return false;
+        }
+        return true;
+    }
     public void hangeMessage(){}
     public Message freeMessage(String messageId){return null;}
 
@@ -60,19 +88,19 @@ public class Server {
             }
             case CREATE_GROUP:
             {
-                if(!creatGroup((ArrayList<UserProfile>) request.getObject()))
+                if(!creatGroup((Group) request.getObject()))
                     rejectRequest(request);
                 break;
             }
             case DELETE_GROUP:
             {
-                if(!deleteGroup((String) request.getObject()))
+                if(!deleteGroup((Group) request.getObject()))
                     rejectRequest(request);
                 break;
             }
             case UPDATE_GROUP:
             {
-                if(!updateGroup((String) request.getObject()))
+                if(!updateGroup((Group) request.getObject()))
                     rejectRequest(request);
                 break;
             }
