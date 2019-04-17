@@ -1,14 +1,7 @@
-
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.scene.control.ListView;
-
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.rmi.ServerError;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class Server {
 
@@ -22,16 +15,78 @@ public class Server {
     private Socket connection;
     private String emailsFileLocation;
     private String hangedMessagesFileLocation;
+    private String groupsFileLocation;
 
 
     public boolean addUser(UserProfile user){return true;}
     public boolean checkIfUserNameAvailable(String userName){return true;}
 
     public boolean deleteUser(UserProfile user){return true;}
+    public boolean updateUser(UserProfile user){return true;}
+    public void rejectRequest(request request){}
+    public boolean creatGroup(ArrayList<UserProfile> list){return true;}
+    public boolean deleteGroup(String groupName){return true;}
+    public boolean updateGroup(String groupName){
+        return false;
+    }
+    public boolean checkIfGroupNameAvailabe(String groupName){return true;}
     public void hangeMessage(){}
     public Message freeMessage(String messageId){return null;}
 
 
+
+    public void handleRequst(request request){
+        requestType type = request.getType();
+
+        switch (type)
+        {
+            case ADD_USER:
+            {
+                if(!addUser((UserProfile) request.getObject())){
+                    rejectRequest(request);
+                }
+                break;
+            }
+            case DELETE_USER:
+            {
+               if(!deleteUser((UserProfile) request.getObject())){
+                   rejectRequest(request);
+               }
+                break;
+            }
+            case UPDATE_USER:
+            {
+                updateUser((UserProfile) request.getObject());
+            }
+            case CREATE_GROUP:
+            {
+                if(!creatGroup((ArrayList<UserProfile>) request.getObject()))
+                    rejectRequest(request);
+                break;
+            }
+            case DELETE_GROUP:
+            {
+                if(!deleteGroup((String) request.getObject()))
+                    rejectRequest(request);
+                break;
+            }
+            case UPDATE_GROUP:
+            {
+                if(!updateGroup((String) request.getObject()))
+                    rejectRequest(request);
+                break;
+            }
+            case SEND_MESSAGE:
+            {
+
+            }
+            case CHECK_HANGED_MESSAGES:
+            {
+
+            }
+        }
+
+    }
 
     public String getEmailsFileLocation() {
         return emailsFileLocation;
