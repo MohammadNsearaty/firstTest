@@ -21,10 +21,13 @@ public class Server {
 
     public boolean addUser(UserProfile user){return true;}
     public boolean checkIfUserNameAvailable(String userName){return true;}
-
     public boolean deleteUser(UserProfile user){return true;}
     public boolean updateUser(UserProfile user){return true;}
-    public void rejectRequest(request request){}
+    public void rejectRequest(request request) throws IOException {
+        request.setObject(Boolean.FALSE);
+        output.writeObject(request);
+        output.flush();
+    }
     public boolean creatGroup(Group group){
         if(!checkIfGroupNameAvaillabe(group.getName()))
             return false;
@@ -58,14 +61,16 @@ public class Server {
         }
         return true;
     }
+    public void successfulRequest(request request) throws IOException {
+        request.setObject(Boolean.TRUE);
+        output.writeObject(request);
+        output.flush();
+    }
     public void hangeMessage(){}
     public Message freeMessage(String messageId){return null;}
 
-
-
-    public void handleRequst(request request){
+    public void handleRequst(request request) throws IOException {
         requestType type = request.getType();
-
         switch (type)
         {
             case ADD_USER:
@@ -73,6 +78,8 @@ public class Server {
                 if(!addUser((UserProfile) request.getObject())){
                     rejectRequest(request);
                 }
+                else
+                   successfulRequest(request);
                 break;
             }
             case DELETE_USER:
@@ -80,42 +87,48 @@ public class Server {
                if(!deleteUser((UserProfile) request.getObject())){
                    rejectRequest(request);
                }
+               else
+                   successfulRequest(request);
                 break;
             }
             case UPDATE_USER:
             {
                 updateUser((UserProfile) request.getObject());
+                successfulRequest(request);
             }
             case CREATE_GROUP:
             {
                 if(!creatGroup((Group) request.getObject()))
                     rejectRequest(request);
+                else
+                    successfulRequest(request);
                 break;
             }
             case DELETE_GROUP:
             {
                 if(!deleteGroup((Group) request.getObject()))
                     rejectRequest(request);
+                else
+                    successfulRequest(request);
                 break;
             }
             case UPDATE_GROUP:
             {
                 if(!updateGroup((Group) request.getObject()))
                     rejectRequest(request);
+                else
+                    successfulRequest(request);
                 break;
             }
             case SEND_MESSAGE:
             {
-
             }
             case CHECK_HANGED_MESSAGES:
             {
-
             }
         }
 
     }
-
     public String getEmailsFileLocation() {
         return emailsFileLocation;
     }

@@ -23,9 +23,6 @@ import java.util.ArrayList;
 
 public class main extends Application implements EventHandler {
 
-
-
-
     ArrayList<String> arrayList = new ArrayList<>();
 
     Button button = new Button();
