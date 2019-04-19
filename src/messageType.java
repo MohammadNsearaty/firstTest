@@ -1,3 +1,3 @@
 public enum messageType {
-    Text,Image,Video,SoundTrack;
+    Text,Image,Video,SoundTrack
 }

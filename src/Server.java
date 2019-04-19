@@ -1,3 +1,4 @@
+import java.awt.*;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -66,10 +67,31 @@ public class Server {
         output.writeObject(request);
         output.flush();
     }
-    public void hangeMessage(){}
-    public Message freeMessage(String messageId){return null;}
+    public void hangeMessage(Message message){
+        messagelist.add(message);
+    }
+    public Message freeMessage(String messageId){
 
-    public void handleRequst(request request) throws IOException {
+        for(Message message:messagelist)
+        {
+            if(message.getMessageID().equals(messageId))
+            {
+                messagelist.remove(message);
+                return message;
+            }
+        }
+        return null;
+    }
+    public ArrayList<Message> searchInHangedMessages(String userId)
+    {
+        ArrayList<Message> userMessages = new ArrayList<>();
+        for(Message message: messagelist)
+            if(message.getRecieverID().equals(userId))
+                userMessages.add(freeMessage(message.getMessageID()));
+        return userMessages;
+    }
+
+    public void handleRequste(request request) throws IOException {
         requestType type = request.getType();
         switch (type)
         {
@@ -122,9 +144,20 @@ public class Server {
             }
             case SEND_MESSAGE:
             {
+                hangeMessage((Message) request.getObject());
+                successfulRequest(request);
             }
             case CHECK_HANGED_MESSAGES:
             {
+                ArrayList<Message> userMessages = searchInHangedMessages((String) request.getObject());
+                if(userMessages.size() == 0)
+                    rejectRequest(request);
+                else
+                {
+                    request.setObject(userMessages);
+                    output.writeObject(request);
+                    output.flush();
+                }
             }
         }
 
@@ -156,14 +189,12 @@ public class Server {
     }
 
     public Server() throws IOException {
-
         //messagelist = ObjectOutputStream(hangedMessagesFileLocation)
     }
 
 
     //Set Up and run the server
     public void startRunning() throws IOException {
-
         server = new ServerSocket(6789, 100);
         while (true) {
             try {

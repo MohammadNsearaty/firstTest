@@ -1,4 +1,3 @@
-import sun.dc.pr.PRError;
 
 public class request {
     private Object object;
@@ -15,7 +14,6 @@ public class request {
     public requestType getType() {
         return type;
     }
-
     public void setType(requestType type) {
         this.type = type;
     }

@@ -1,6 +1,16 @@
 import java.util.Date;
 
 public class Message {
+    private String messageID;
+
+    public String getMessageID() {
+        return messageID;
+    }
+
+    public void setMessageID(String messageID) {
+        this.messageID = messageID;
+    }
+
     private String senderID;
     private String recieverID;
     private boolean groupMessage;
