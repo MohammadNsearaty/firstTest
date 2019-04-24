@@ -1,4 +1,3 @@
-import java.awt.*;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -29,7 +28,12 @@ public class Server {
         output.writeObject(request);
         output.flush();
     }
-    public boolean creatGroup(Group group){
+    public void successfulRequest(request request) throws IOException {
+        request.setObject(Boolean.TRUE);
+        output.writeObject(request);
+        output.flush();
+    }
+    public boolean createGroup(Group group){
         if(!checkIfGroupNameAvaillabe(group.getName()))
             return false;
         groupsList.add(group);
@@ -62,12 +66,8 @@ public class Server {
         }
         return true;
     }
-    public void successfulRequest(request request) throws IOException {
-        request.setObject(Boolean.TRUE);
-        output.writeObject(request);
-        output.flush();
-    }
-    public void hangeMessage(Message message){
+
+    public void hangMessage(Message message){
         messagelist.add(message);
     }
     public Message freeMessage(String messageId){
@@ -91,7 +91,7 @@ public class Server {
         return userMessages;
     }
 
-    public void handleRequste(request request) throws IOException {
+    public void handleRequest(request request) throws IOException {
         requestType type = request.getType();
         switch (type)
         {
@@ -120,7 +120,7 @@ public class Server {
             }
             case CREATE_GROUP:
             {
-                if(!creatGroup((Group) request.getObject()))
+                if(!createGroup((Group) request.getObject()))
                     rejectRequest(request);
                 else
                     successfulRequest(request);
@@ -144,7 +144,7 @@ public class Server {
             }
             case SEND_MESSAGE:
             {
-                hangeMessage((Message) request.getObject());
+                hangMessage((Message) request.getObject());
                 successfulRequest(request);
             }
             case CHECK_HANGED_MESSAGES:
@@ -284,6 +284,30 @@ public class Server {
             output.close();
             input.close();
             connection.close();
+
+            FileOutputStream hangeStream = new FileOutputStream(hangedMessagesFileLocation);
+            FileOutputStream usersStream = new FileOutputStream(emailsFileLocation);
+            FileOutputStream groupStream = new FileOutputStream(groupsFileLocation);
+
+            ObjectOutputStream hangedMessagesWriter = new ObjectOutputStream(hangeStream);
+            ObjectOutputStream usersWriter = new ObjectOutputStream(usersStream);
+            ObjectOutputStream groupWriter = new ObjectOutputStream(groupStream);
+
+            hangedMessagesWriter.writeObject(messagelist);
+            usersWriter.writeObject(list);
+            groupWriter.writeObject(groupsList);
+
+            hangedMessagesWriter.flush();
+            usersWriter.flush();
+            groupWriter.flush();
+
+            hangedMessagesWriter.close();
+            usersWriter.close();
+            groupWriter.close();
+
+            hangeStream.close();
+            usersStream.close();
+            groupStream.close();
         }catch (IOException e){
             e.printStackTrace();
         }
