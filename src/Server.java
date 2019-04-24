@@ -1,7 +1,10 @@
+import com.sun.javafx.runtime.async.AbstractRemoteResource;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class Server {
 
@@ -9,28 +12,61 @@ public class Server {
     private ObjectInputStream input;
     private ServerSocket server;
 
-    private ArrayList<UserProfile> list;
+    private ArrayList<UserProfile> list = new ArrayList<>();
     private ArrayList<Message> messagelist;
     private ArrayList<Group> groupsList;
 
     private Socket connection;
-    private String emailsFileLocation;
-    private String hangedMessagesFileLocation;
-    private String groupsFileLocation;
+    private String emailsFileLocation ="C:\\Users\\Mohamad Nsearaty\\Desktop\\hangeFile";
+    private String hangedMessagesFileLocation ="C:\\Users\\Mohamad Nsearaty\\Desktop\\hangedMessages";
+    private String groupsFileLocation= "C:\\Users\\Mohamad Nsearaty\\Desktop\\groupsFile";
+
+    public Server() throws IOException, ClassNotFoundException {
+
+        emailsFileLocation ="C:\\Users\\Mohamad Nsearaty\\Desktop\\hangeFile";
+        hangedMessagesFileLocation ="C:\\Users\\Mohamad Nsearaty\\Desktop\\hangedMessages";
+        groupsFileLocation= "C:\\Users\\Mohamad Nsearaty\\Desktop\\groupsFile";
+
+        FileInputStream emailFile = new FileInputStream(emailsFileLocation);
+        ObjectInputStream emailStream = new ObjectInputStream(emailFile);
+        FileInputStream messagesFile = new FileInputStream(hangedMessagesFileLocation);
+        ObjectInputStream messagesStream = new ObjectInputStream(messagesFile);
+        FileInputStream groupFile = new FileInputStream(groupsFileLocation);
+        ObjectInputStream groupStream = new ObjectInputStream(groupFile);
+        list = (ArrayList<UserProfile>) emailStream.readObject();
+        messagelist = (ArrayList<Message>) messagesStream.readObject();
+        groupsList = (ArrayList<Group>) groupStream.readObject();
+    }
 
 
-    public boolean addUser(UserProfile user){return true;}
+
+    public boolean addUser(UserProfile user){
+        for(int i =0 ; i < list.size() ;i++)
+        {
+            if(list.get(i).getUserId().equals(user.getUserId()))
+                return false;
+        }
+        list.add(user);
+        return true;
+    }
     public boolean checkIfUserNameAvailable(String userName){return true;}
     public boolean deleteUser(UserProfile user){return true;}
     public boolean updateUser(UserProfile user){return true;}
-    public void rejectRequest(request request) throws IOException {
-        request.setObject(Boolean.FALSE);
-        output.writeObject(request);
+    public void rejectRequest(ArrayList<Object> list) throws IOException {
+        ArrayList<Object> arrayList = new ArrayList<>();
+        arrayList.add(list.get(0));
+        arrayList.add(false);
+        output.writeObject(arrayList);
         output.flush();
     }
-    public void successfulRequest(request request) throws IOException {
-        request.setObject(Boolean.TRUE);
-        output.writeObject(request);
+    public void successfulRequest(ArrayList<Object> list) throws IOException {
+        ArrayList<Object> arrayList = new ArrayList<>();
+        UserProfile profile = serilaizeProfileObject(list);
+        addUser(profile);
+        arrayList.add(list.get(0));
+        arrayList.add(true);
+        arrayList.add("abc123");//Test Id
+        output.writeObject(arrayList);
         output.flush();
     }
     public boolean createGroup(Group group){
@@ -90,20 +126,34 @@ public class Server {
                 userMessages.add(freeMessage(message.getMessageID()));
         return userMessages;
     }
+    public UserProfile serilaizeProfileObject(ArrayList<Object> arrayList)
+    {
+        UserProfile userProfile = new UserProfile();
 
-    public void handleRequest(request request) throws IOException {
-        requestType type = request.getType();
+        userProfile.setUserName((String) arrayList.get(1));
+        userProfile.setEmail((String) arrayList.get(2));
+        userProfile.setPassword((String) arrayList.get(3));
+        userProfile.setBirthDate((Date) arrayList.get(4));
+        userProfile.setJoinDate((Date)arrayList.get(5));
+        userProfile.setUserId("abc123");
+
+
+        return userProfile;
+    }
+    public void handleRequest(ArrayList<Object> list) throws IOException {
+        int type = (int) list.get(0);
         switch (type)
         {
-            case ADD_USER:
+            case 0://Add user
             {
-                if(!addUser((UserProfile) request.getObject())){
-                    rejectRequest(request);
+                UserProfile userProfile = serilaizeProfileObject(list);
+                if(!addUser(userProfile)){
+                    rejectRequest(list);
                 }
                 else
-                   successfulRequest(request);
+                   successfulRequest(list);
                 break;
-            }
+            }/*
             case DELETE_USER:
             {
                if(!deleteUser((UserProfile) request.getObject())){
@@ -158,7 +208,7 @@ public class Server {
                     output.writeObject(request);
                     output.flush();
                 }
-            }
+            }*/
         }
 
     }
@@ -188,9 +238,6 @@ public class Server {
         return input;
     }
 
-    public Server() throws IOException {
-        //messagelist = ObjectOutputStream(hangedMessagesFileLocation)
-    }
 
 
     //Set Up and run the server
@@ -201,7 +248,6 @@ public class Server {
                 WaitForConnection();  //wait someone to connect with me
                 SetUpStream();// after one connect with me I Will setup my Stream InputStream and OutPutStream and setup connection
                 WhileChatting(); // the programme that will send and receive message
-
             } catch (EOFException eof) {
                 eof.printStackTrace();
                 System.out.println("Stop:" + "\n" + "The Server End up the Connection...");
@@ -239,14 +285,18 @@ public class Server {
         fis.read(buffer);
         output.writeObject(buffer);
         output.flush();*/
-        final String[] message = {""};
-        String recieveMessage = "";
-        do { //have a conversation
-           recieveMessage = (String) input.readObject();
-           if(recieveMessage!=null)
-           {System.out.println(recieveMessage);
-           }
-        } while (!message[0].equals("CLIENT - END")); // the while will excite until any one type END then the chat will stop here we deal with Just String
+        //final String message[] = {""};
+        ArrayList<Object> recieveMessage;
+        input.readObject();
+       // do { //have a conversation
+           recieveMessage = (ArrayList<Object>) input.readObject();
+            System.out.println(recieveMessage);
+           //if(recieveMessage!=)
+           //{
+               handleRequest(recieveMessage);
+          // }
+
+        //} while (!message[0].equals("CLIENT - END")); // the while will excite until any one type END then the chat will stop here we deal with Just String
 
     }
 
@@ -284,10 +334,19 @@ public class Server {
             output.close();
             input.close();
             connection.close();
+            File emailFile = new File(emailsFileLocation);
+            emailFile.createNewFile();
 
-            FileOutputStream hangeStream = new FileOutputStream(hangedMessagesFileLocation);
-            FileOutputStream usersStream = new FileOutputStream(emailsFileLocation);
-            FileOutputStream groupStream = new FileOutputStream(groupsFileLocation);
+            File hangeFile = new File(hangedMessagesFileLocation);
+            hangeFile.createNewFile();
+
+            File groupFile = new File(groupsFileLocation);
+            groupFile.createNewFile();
+
+
+            FileOutputStream hangeStream = new FileOutputStream(hangeFile);
+            FileOutputStream usersStream = new FileOutputStream(emailFile);
+            FileOutputStream groupStream = new FileOutputStream(groupFile);
 
             ObjectOutputStream hangedMessagesWriter = new ObjectOutputStream(hangeStream);
             ObjectOutputStream usersWriter = new ObjectOutputStream(usersStream);

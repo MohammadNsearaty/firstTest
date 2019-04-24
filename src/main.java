@@ -36,6 +36,8 @@ public class main extends Application implements EventHandler {
             server = new Server();
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         }
     }
 

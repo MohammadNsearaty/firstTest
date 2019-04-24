@@ -1,7 +1,8 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class UserProfile {
+public class UserProfile implements Serializable {
     private String userName;
     private String password;
     private String email;
@@ -10,6 +11,15 @@ public class UserProfile {
     private ArrayList<String> blockList;
     private Date joinDate;
     private ArrayList<Message> currMessages;
+    private String userId;
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 
     UserProfile()
     {
