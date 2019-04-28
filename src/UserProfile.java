@@ -1,8 +1,8 @@
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class UserProfile implements Serializable {
+public class UserProfile {
+    private String id;
     private String userName;
     private String password;
     private String email;
@@ -11,21 +11,13 @@ public class UserProfile implements Serializable {
     private ArrayList<String> blockList;
     private Date joinDate;
     private ArrayList<Message> currMessages;
-    private String userId;
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
 
     UserProfile()
     {
         userName ="";
         password ="";
         email = "";
+        id="";
         birthDate = new Date();
         userFriends = new ArrayList<>();
         blockList = new ArrayList<>();
@@ -117,5 +109,11 @@ public class UserProfile implements Serializable {
 
     public void setJoinDate(Date joinDate) {
         this.joinDate = joinDate;
+    }
+    public String getUserId() {
+        return id;
+    }
+    public void setUserId(String id) {
+        this.id = id;
     }
 }
